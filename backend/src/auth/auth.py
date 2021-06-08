@@ -106,7 +106,33 @@ def verify_decode_jwt(token):
         raise AuthError({
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
-        })
+        }, 401)
+
+    for key in jwks['keys']:
+        if key['kid'] == unverified_header['kid']:
+            rsa_key = {
+                'kty': key['kty'],
+                'kid': key['kid'],
+                'use': key['use'],
+                'n': key['n'],
+                'e': key['e']
+            }
+        if rsa_key:
+            try:
+                payload = jwt.decode(
+                    token,
+                    rsa_key,
+                    algorithms=ALGORITHMS,
+                    audience=API_AUDIENCE,
+                    issue='https://' + AUTH0_DOMAIN + '/'
+                )
+                
+                return payload
+            except jwt.ExpiredSignatureError:
+                raise AuthError({
+                    'code': 'token_expired',
+                    'description': 'Token Expired'
+                })
 
 
 '''
