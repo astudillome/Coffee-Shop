@@ -40,10 +40,9 @@ def get_drinks_summary():
         else:
             drinks_summary = [drink.short() for drink in drinks]
             return jsonify({
-                'status_code': 200,
                 'success': True,
                 'drinks': drinks_summary
-            })
+            }), 200
 
     except Exception as error:
         print(sys.exc_info())
@@ -70,10 +69,10 @@ def get_drinks_detail():
         else:
             drinks_detail = [drink.long() for drink in drinks]
             return jsonify({
-                'status_code': 200,
                 'success': True,
                 'drinks': drinks_detail
-            })
+            }), 200
+            
     except Exception as error:
         print(sys.exc_info())
         abort(404)
@@ -101,10 +100,10 @@ def post_drinks():
         new_drink.insert()
         
         return jsonify({
-            'status_code': 200,
             'success': True,
             'drinks': Drink.long(new_drink)
-        })
+        }), 200
+        
     except Exception as error:
         print(sys.exc_info())
         abort(422)
@@ -136,10 +135,10 @@ def edit_drink(token, id):
         edited_drink.update()
         
         return jsonify({
-            'status_code': 200,
             'success': True,
             'drinks': drink.long()
-        })
+        }), 200
+        
     except Exception as error:
         print(sys.exc_info())
         abort(422)
@@ -164,10 +163,10 @@ def delete_drink(token, id):
         else:
             drink.delete()
             return jsonify({
-                'status_code': 200,
                 'success': True,
                 'delete': id
-            })
+            }), 200
+            
     except Exception as error:
         print(sys.exc_info())
         abort(422)
