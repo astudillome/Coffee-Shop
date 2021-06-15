@@ -45,7 +45,6 @@ def get_drinks_summary():
             }), 200
 
     except Exception as error:
-        print(sys.exc_info())
         abort(404)
 
 
@@ -61,7 +60,7 @@ def get_drinks_summary():
 
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
-def get_drinks_detail():
+def get_drinks_detail(jwt):
     try:
         drinks = Drink.query.order_by(Drink.id).all()
         if len(drinks) == 0:
@@ -74,7 +73,6 @@ def get_drinks_detail():
             }), 200
             
     except Exception as error:
-        print(sys.exc_info())
         abort(404)
 
 
@@ -89,7 +87,7 @@ def get_drinks_detail():
 '''
 @app.route('/drinks', methods=["POST"])
 @requires_auth('post:drinks')
-def post_drinks():
+def add_drinks(payload):
     data = request.get_json()
     new_title = data.get('title', None)
     new_recipe = data.get('recipe', None)
@@ -105,7 +103,6 @@ def post_drinks():
         }), 200
         
     except Exception as error:
-        print(sys.exc_info())
         abort(422)
 
 '''
@@ -128,7 +125,7 @@ def edit_drink(token, id):
     
     try:
         edited_drink = Drink.query.filter(Drink.id == id).one_or_none()
-        if len(drink) == 0:
+        if len(edited_drink) == 0:
             abort(404)
         edited_drink.title = edited_title
         edited_drink.recipe = edited_recipe
@@ -136,11 +133,10 @@ def edit_drink(token, id):
         
         return jsonify({
             'success': True,
-            'drinks': drink.long()
+            'drinks': edited_drink.long()
         }), 200
         
     except Exception as error:
-        print(sys.exc_info())
         abort(422)
 
 '''
@@ -168,7 +164,6 @@ def delete_drink(token, id):
             }), 200
             
     except Exception as error:
-        print(sys.exc_info())
         abort(422)
     
 
@@ -224,15 +219,6 @@ def auth_error(error):
         "message": "Auth Error"
     }), AuthError
     
-@app.errorhandler(401)
-def unauthorized(error):
-    return jsonify({
-        "success": False,
-        "error": 401,
-        "message": 'Unathorized'
-    }), 401
-
-
 @app.errorhandler(500)
 def internal_server_error(error):
     return jsonify({
@@ -241,7 +227,6 @@ def internal_server_error(error):
         "message": 'Internal Server Error'
     }), 500
 
-
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify({
@@ -249,7 +234,6 @@ def bad_request(error):
         "error": 400,
         "message": 'Bad Request'
     }), 400
-
 
 @app.errorhandler(405)
 def method_not_allowed(error):
